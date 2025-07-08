@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tadpole Trials - Enhanced Biology Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      touch-action: manipulation;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      overflow-x: hidden;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 10px;
+      width: 100%;
+      max-width: 800px;
+      padding-top: 5px;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 5px;
+      text-shadow: 0 0 15px rgba(0, 200, 255, 0.7);
+      position: relative;
+      display: inline-block;
+    }
+    
+    h1:after {
+      content: "🐸";
+      position: absolute;
+      right: -40px;
+      top: -5px;
+      font-size: 2rem;
+      animation: jump 2s infinite;
+    }
+    
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 800px;
+      background: rgba(0, 20, 40, 0.85);
+      border-radius: 15px;
+      padding: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 100, 200, 0.5);
+      border: 2px solid #00ccff;
+      position: relative;
+    }
+    
+    .screen {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+    }
+    
+    #startScreen {
+      text-align: center;
+    }
+    
+    #gameCanvas {
+      background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+      border: 3px solid #00aaff;
+      border-radius: 8px;
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 0 15px rgba(0, 150, 255, 0.5);
+      max-width: 100%;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 2 / 1;
+      box-sizing: border-box;
+    }
+    
+    #quiz, #scoreScreen, #finalScreen {
+      background: rgba(10, 30, 60, 0.9);
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+    
+    #questionText {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: #aaffff;
+      line-height: 1.4;
+    }
+    
+    .optionBtn {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      background: linear-gradient(to right, #1e3c72, #2a5298);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .optionBtn:active {
+      transform: translateY(1px);
+    }
+    
+    .optionBtn:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 5px;
+      background: #00ccff;
+    }
+    
+    button {
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 8px;
+      box-shadow: 0 4px 12px rgba(0, 100, 200, 0.4);
+      font-weight: bold;
+      min-width: 140px;
+    }
+    
+    button:active {
+      transform: translateY(1px);
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 30, 60, 0.7);
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      border: 1px solid #00aaff;
+      flex-wrap: wrap;
+    }
+    
+    .stats span {
+      color: #aaffff;
+      font-weight: bold;
+    }
+    
+    .instructions {
+      background: rgba(0, 40, 80, 0.7);
+      padding: 15px;
+      border-radius: 12px;
+      margin: 15px 0;
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      border: 1px solid #00ccff;
+    }
+    
+    .instructions p {
+      margin: 8px 0;
+      line-height: 1.5;
+    }
+    
+    .key {
+      display: inline-block;
+      background: rgba(0, 100, 200, 0.5);
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin: 0 4px;
+      font-weight: bold;
+      border: 1px solid #00aaff;
+    }
+    
+    .brain-counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      margin: 8px 0;
+    }
+    
+    .brain-icon {
+      color: #ff66cc;
+      font-size: 1.5rem;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes jump {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    
+    .level-indicator {
+      font-size: 1.2rem;
+      margin: 12px 0;
+      padding: 8px 16px;
+      background: rgba(0, 100, 200, 0.3);
+      border-radius: 40px;
+      display: inline-block;
+      border: 1px solid #00ccff;
+    }
+    
+    .correct {
+      background: linear-gradient(to right, #00b09b, #96c93d) !important;
+    }
+    
+    .incorrect {
+      background: linear-gradient(to right, #ff416c, #ff4b2b) !important;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    
+    .death-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(200, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .death-message {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+    
+   /* Mobile Controls */
+#mobileControls {
+  display: none;
+  position: absolute;
+  bottom: 20px;
+  width: calc(100% - 30px);
+  justify-content: space-between;
+  z-index: 5;
+  pointer-events: none;
+}
+
+#mobileControls,
+#mobileControls button {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Visibility control */
+@media (max-width: 768px) {
+  .game-active #mobileControls {
+    display: flex;
+  }
+}
+    
+    .dpad-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .dpad-row {
+      display: flex;
+      gap: 5px;
+    }
+    
+    .control-btn {
+      width: 60px;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      color: white;
+      pointer-events: auto;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    
+    .jump-btn {
+      width: 70px;
+      height: 70px;
+      background: rgba(0, 100, 200, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      pointer-events: auto;
+      touch-action: manipulation;
+      user-select: none;
+      align-self: flex-end;
+      margin-right: 10px;
+    }
+    
+    /* New shoot button */
+    .shoot-btn {
+      width: 70px;
+      height: 70px;
+      background: rgba(200, 0, 0, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      pointer-events: auto;
+      align-self: flex-end;
+      margin-right: 10px;
+      position: absolute;
+      right: 10px;
+      bottom: 90px;
+    }
+    
+    /* Mobile-specific adjustments */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      h1:after {
+        right: -35px;
+        font-size: 1.8rem;
+      }
+      
+      .game-container {
+        padding: 10px;
+        border-radius: 12px;
+      }
+      
+      .screen {
+        padding: 10px;
+      }
+      
+      #quiz, #scoreScreen, #finalScreen {
+        padding: 15px;
+      }
+      
+      #questionText {
+        font-size: 1.1rem;
+      }
+      
+      .optionBtn {
+        padding: 10px;
+        font-size: 0.95rem;
+      }
+      
+      button {
+        padding: 10px 20px;
+        font-size: 1rem;
+        min-width: 120px;
+      }
+      
+      .stats {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      #mobileControls {
+        display: flex;
+      }
+      
+      /* Hide up arrow on mobile */
+      #upBtn {
+        display: none !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      h1:after {
+        right: -30px;
+        font-size: 1.5rem;
+      }
+      
+      .level-indicator {
+        font-size: 1rem;
+        padding: 6px 12px;
+      }
+      
+      .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+      }
+      
+      .jump-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 14px;
+      }
+      
+      .shoot-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 12px;
+        bottom: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tadpole Trials</h1>
+    <p class="level-indicator">Journey through the world of biology!</p>
+  </header>
+  
+  <div class="game-container">
+    <!-- Mobile Controls -->
+    <div id="mobileControls">
+      <div class="dpad-container">
+        <div class="dpad-row">
+          <div class="control-btn" id="upBtn">↑</div>
+        </div>
+        <div class="dpad-row">
+          <div class="control-btn" id="leftBtn">←</div>
+          <div class="control-btn" id="downBtn" style="visibility: hidden;"></div>
+          <div class="control-btn" id="rightBtn">→</div>
+        </div>
+      </div>
+      <div class="jump-btn" id="jumpBtn">JUMP</div>
+      <div class="shoot-btn" id="shootBtn">SHOOT</div>
+    </div>
+    
+    <!-- Start Screen -->
+    <div id="startScreen" class="screen">
+      <div class="instructions">
+        <h2>🐸 Welcome to Tadpole Trials!</h2>
+        <p>You're a brave tadpole exploring the fascinating world of biology!</p>
+        <p>Collect <span class="brain-icon">🧠</span> brains to unlock quiz questions at the end of each level.</p>
+        
+        <div class="stats">
+          <p>🎮 <span>Controls:</span></p>
+          <p>Move: <span class="key">←</span> <span class="key">→</span></p>
+          <p>Jump: <span class="key">↑</span> or <span class="key">Space</span></p>
+          <p>Shoot: <span class="key">F</span> key or mobile button</p>
+          <p>Defeat enemies: <span class="key">Jump</span> or shoot them</p>
+        </div>
+        
+        <div class="stats">
+          <p>⭐ <span>Levels:</span></p>
+          <p>1: <span>Easy</span> (10 questions)</p>
+          <p>2: <span>Medium</span> (10 questions)</p>
+          <p>3: <span>Hard</span> (15 questions)</p>
+        </div>
+      </div>
+      <button id="startBtn">Start Game</button>
+    </div>
+    
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div id="deathOverlay" class="death-overlay">
+      <div class="death-message">Oh no! Press R to respawn</div>
+    </div>
+    
+    <!-- Quiz Screen -->
+    <div id="quiz" class="screen">
+      <h2>🧠 Biology Quiz</h2>
+      <div class="brain-counter">
+        <span class="brain-icon">🧠</span> 
+        <span id="collectedCount">0</span> Collected
+      </div>
+      <h3 id="questionText"></h3>
+      <div id="optionsContainer"></div>
+    </div>
+    
+    <!-- Score Screen -->
+    <div id="scoreScreen" class="screen">
+      <h2>Level Complete! 🎉</h2>
+      <h3 id="scoreSummary"></h3>
+      <div class="controls">
+        <button id="retryBtn">🔁 Retry Level</button>
+        <button id="nextBtn">➡ Next Level</button>
+      </div>
+    </div>
+    
+    <!-- Final Screen -->
+    <div id="finalScreen" class="screen">
+      <h2>Congratulations! 🏆</h2>
+      <h3 id="finalText"></h3>
+      <button id="restartBtn">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    // Mobile detection
+    // More reliable mobile detection
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Game state with enhanced physics and enemies
+    const gameState = {
+      currentLevel: 1,
+      levels: [
+        { name: "Easy", questions: 10, collected: 0, brains: 10 },
+        { name: "Medium", questions: 10, collected: 0, brains: 10 },
+        { name: "Hard", questions: 15, collected: 0, brains: 15 }
+      ],
+      player: {
+        x: 100,
+        y: 300,
+        width: 30,
+        height: 30,
+        velX: 0,
+        velY: 0,
+        speed: isMobile ? 5.0 : 3.5,
+        jumpPower: -12,
+        gravity: 0.5,
+        friction: 0.8,
+        jumping: false,
+        direction: 1,
+        grounded: false,
+        lives: 3
+      },
+      platforms: [],
+      brains: [],
+      enemies: [],
+      playerProjectiles: [],
+      enemyProjectiles: [],
+      shootCooldown: 0,
+      endFlag: null,
+      collectedBrains: [],
+      quizQuestions: [],
+      currentQuestion: 0,
+      score: {
+        correct: 0,
+        total: 0
+      },
+      keys: {
+        left: false,
+        right: false,
+        up: false,
+        r: false,
+        shoot: false
+      },
+      gameActive: false,
+      cameraX: 0,
+      levelWidth: 2000,
+      isDead: false
+    };
+
+    // DOM elements
+    const startScreen = document.getElementById('startScreen');
+    const gameCanvas = document.getElementById('gameCanvas');
+    const quizScreen = document.getElementById('quiz');
+    const scoreScreen = document.getElementById('scoreScreen');
+    const finalScreen = document.getElementById('finalScreen');
+    const startBtn = document.getElementById('startBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const questionText = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const scoreSummary = document.getElementById('scoreSummary');
+    const finalText = document.getElementById('finalText');
+    const collectedCount = document.getElementById('collectedCount');
+    const levelIndicator = document.querySelector('.level-indicator');
+    const deathOverlay = document.getElementById('deathOverlay');
+    const mobileControls = document.getElementById('mobileControls');
+    const ctx = gameCanvas.getContext('2d');
+    
+    // Mobile control elements
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    const upBtn = document.getElementById('upBtn');
+    const jumpBtn = document.getElementById('jumpBtn');
+    const shootBtn = document.getElementById('shootBtn');
+
+// Function to show specific screen and hide others
+function showScreen(screen) {
+  // Hide all screens
+  startScreen.style.display = 'none';
+  gameCanvas.style.display = 'none';
+  quizScreen.style.display = 'none';
+  scoreScreen.style.display = 'none';
+  finalScreen.style.display = 'none';
+  
+  // Show requested screen
+  screen.style.display = 'flex';
+  
+  // Toggle game-active class on game container (replaces the mobileControls check)
+  document.querySelector('.game-container').classList.toggle('game-active', screen === gameCanvas);
+}
+
+    // Initialize game
+    function init() {
+      startBtn.addEventListener('click', startGame);
+      retryBtn.addEventListener('click', retryLevel);
+      nextBtn.addEventListener('click', nextLevel);
+      restartBtn.addEventListener('click', restartGame);
+      
+      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('keyup', handleKeyUp);
+      
+      if (isMobile) {
+        const buttonActions = {
+          leftBtn: 'left',
+          rightBtn: 'right',
+          upBtn: 'up',
+          jumpBtn: 'up',
+          shootBtn: 'shoot'
+        };
+
+        Object.entries(buttonActions).forEach(([id, key]) => {
+          const btn = document.getElementById(id);
+
+          // Touch control logic
+          btn.addEventListener('touchstart', () => gameState.keys[key] = true);
+          btn.addEventListener('touchend', () => gameState.keys[key] = false);
+
+          // Prevent unwanted mobile behavior
+          btn.addEventListener('contextmenu', e => e.preventDefault());
+          btn.addEventListener('selectstart', e => e.preventDefault());
+          btn.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+
+          // Optional: removes grey highlight on tap
+          btn.style.webkitTapHighlightColor = 'transparent';
+        });
+      }
+      
+      // Initial screen setup
+      showScreen(startScreen);
+      deathOverlay.style.display = 'none';
+    }
+
+    // Start the game
+    function startGame() {
+      resetGameState();
+      showScreen(gameCanvas);
+      setupLevel(1);
+      gameState.gameActive = true;
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Set up a level
+    function setupLevel(level) {
+      gameState.currentLevel = level;
+      gameState.player = {
+        x: 100,
+        y: 300,
+        width: 30,
+        height: 30,
+        velX: 0,
+        velY: 0,
+        speed: isMobile ? 5.0 : 3.5,
+        jumpPower: -12,
+        gravity: 0.5,
+        friction: 0.6,
+        jumping: false,
+        direction: 1,
+        grounded: false,
+        lives: 3
+      };
+      gameState.collectedBrains = [];
+      gameState.platforms = [];
+      gameState.brains = [];
+      gameState.enemies = [];
+      gameState.playerProjectiles = [];
+      gameState.enemyProjectiles = [];
+      gameState.quizQuestions = [];
+      gameState.score = { correct: 0, total: 0 };
+      gameState.cameraX = 0;
+      gameState.isDead = false;
+      gameState.shootCooldown = 0;
+      
+      levelIndicator.textContent = `Level ${level}: ${gameState.levels[level-1].name}`;
+      
+      // Create platforms
+      gameState.platforms.push({x: 0, y: 350, width: gameState.levelWidth, height: 20}); // Ground
+      
+      // Level-specific configurations
+      if (level === 1) {
+        gameState.levelWidth = 2000;
+        
+        // Add platforms
+        gameState.platforms.push({x: 200, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 400, y: 230, width: 100, height: 20});
+        gameState.platforms.push({x: 600, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 800, y: 230, width: 100, height: 20});
+        gameState.platforms.push({x: 1000, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 1200, y: 230, width: 100, height: 20});
+        gameState.platforms.push({x: 1400, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 1600, y: 230, width: 100, height: 20});
+        gameState.platforms.push({x: 1800, y: 280, width: 100, height: 20});
+        
+        // Add 10 brains
+        for (let i = 0; i < 10; i++) {
+          gameState.brains.push({
+            x: 250 + i * 180,
+            y: 250 - (i % 3) * 40,
+            collected: false
+          });
+        }
+        
+        // Add enemies
+        gameState.enemies.push({
+          x: 500, y: 200, width: 30, height: 30, 
+          velX: 1, minX: 450, maxX: 700,
+          type: 'ground',
+          alive: true
+        });
+        gameState.enemies.push({
+          x: 1200, y: 180, width: 30, height: 30, 
+          velX: -1.5, minX: 1100, maxX: 1400,
+          type: 'ground',
+          alive: true
+        });
+        
+      } else if (level === 2) {
+        gameState.levelWidth = 2500;
+        
+        // Add platforms
+        gameState.platforms.push({x: 200, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 400, y: 230, width: 100, height: 20});
+        gameState.platforms.push({x: 600, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 800, y: 200, width: 100, height: 20});
+        gameState.platforms.push({x: 1000, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 1200, y: 230, width: 100, height: 20});
+        gameState.platforms.push({x: 1400, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 1600, y: 230, width: 100, height: 20});
+        gameState.platforms.push({x: 1800, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 2000, y: 230, width: 100, height: 20});
+        gameState.platforms.push({x: 2200, y: 280, width: 100, height: 20});
+        
+        // Add 10 brains
+        for (let i = 0; i < 10; i++) {
+          gameState.brains.push({
+            x: 250 + i * 220,
+            y: 250 - (i % 4) * 40,
+            collected: false
+          });
+        }
+        
+        // Add enemies
+        gameState.enemies.push({
+          x: 600, y: 200, width: 30, height: 30, 
+          velX: 1.2, minX: 500, maxX: 800,
+          type: 'ground',
+          alive: true
+        });
+        gameState.enemies.push({
+          x: 1400, y: 180, width: 30, height: 30, 
+          velX: -1.7, minX: 1300, maxX: 1600,
+          type: 'ground',
+          alive: true
+        });
+        // Vertical moving enemy
+        gameState.enemies.push({
+          x: 1800, y: 150, width: 30, height: 30,
+          velY: 1.5, minY: 100, maxY: 250,
+          type: 'vertical',
+          alive: true
+        });
+        
+      } else if (level === 3) {
+        gameState.levelWidth = 3000;
+        
+        // Add platforms
+        gameState.platforms.push({x: 200, y: 280, width: 70, height: 20});
+        gameState.platforms.push({x: 400, y: 230, width: 70, height: 20});
+        gameState.platforms.push({x: 600, y: 180, width: 70, height: 20});
+        gameState.platforms.push({x: 800, y: 230, width: 70, height: 20});
+        gameState.platforms.push({x: 1000, y: 280, width: 70, height: 20});
+        gameState.platforms.push({x: 1200, y: 230, width: 70, height: 20});
+        gameState.platforms.push({x: 1400, y: 180, width: 70, height: 20});
+        gameState.platforms.push({x: 1600, y: 230, width: 70, height: 20});
+        gameState.platforms.push({x: 1800, y: 280, width: 70, height: 20});
+        gameState.platforms.push({x: 2000, y: 230, width: 70, height: 20});
+        gameState.platforms.push({x: 2200, y: 180, width: 70, height: 20});
+        gameState.platforms.push({x: 2400, y: 230, width: 70, height: 20});
+        gameState.platforms.push({x: 2600, y: 280, width: 200, height: 20});
+        
+        // Add 15 brains
+        for (let i = 0; i < 14; i++) {
+          gameState.brains.push({
+            x: 250 + i * 180,
+            y: 250 - (i % 5) * 40,
+            collected: false
+          });
+        }
+        // Add the 15th brain in a more accessible position
+        gameState.brains.push({
+          x: 2750,
+          y: 230,
+          collected: false
+        });
+        
+        // Add enemies
+        gameState.enemies.push({
+          x: 700, y: 150, width: 30, height: 30, 
+          velX: 1.5, minX: 600, maxX: 900,
+          type: 'ground',
+          alive: true
+        });
+        gameState.enemies.push({
+          x: 1500, y: 150, width: 30, height: 30, 
+          velX: -1.8, minX: 1400, maxX: 1700,
+          type: 'ground',
+          alive: true
+        });
+        // Ranged enemy
+        gameState.enemies.push({
+          x: 2300, y: 150, width: 30, height: 30, 
+          velX: 0, attackTimer: 60, attackRange: 300,
+          type: 'ranged',
+          alive: true
+        });
+      }
+      
+      // Add end flag at the end of the level
+      gameState.endFlag = {x: gameState.levelWidth - 100, y: 270, width: 30, height: 80};
+    }
+
+    // Game loop
+    function gameLoop() {
+      if (!gameState.gameActive) return;
+      
+      update();
+      draw();
+      
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Update game state with fixed physics
+    function update() {
+      const player = gameState.player;
+      
+      // Player is dead - wait for respawn
+      if (gameState.isDead) {
+        if (gameState.keys.r) {
+          respawnPlayer();
+        }
+        return;
+      }
+      
+      // Apply gravity if not grounded
+      if (!player.grounded) {
+        player.velY += player.gravity;
+      } else {
+        player.velY = 0;
+      }
+      
+      // Handle horizontal movement with friction
+      if (gameState.keys.left) {
+        player.velX = -player.speed;
+        player.direction = -1;
+      } else if (gameState.keys.right) {
+        player.velX = player.speed;
+        player.direction = 1;
+      } else {
+        player.velX *= player.friction;
+        if (Math.abs(player.velX) < 0.1) player.velX = 0;
+      }
+      
+      // Jumping - only when grounded
+      if (gameState.keys.up && player.grounded) {
+        player.velY = player.jumpPower;
+        player.grounded = false;
+      }
+      
+      // Shooting
+      if (gameState.keys.shoot && gameState.shootCooldown <= 0) {
+        gameState.playerProjectiles.push({
+          x: player.x + player.width * player.direction,
+          y: player.y + player.height/2,
+          width: 15,
+          height: 15,
+          velX: 7 * player.direction,
+          distance: 0,
+          range: 400
+        });
+        gameState.shootCooldown = 60; // Cooldown frames
+      }
+      
+      // Update position
+      player.x += player.velX;
+      player.y += player.velY;
+      
+      // Boundary checks (left/right)
+      if (player.x < 0) {
+        player.x = 0;
+        player.velX = 0;
+      }
+      if (player.x > gameState.levelWidth - player.width) {
+        player.x = gameState.levelWidth - player.width;
+        player.velX = 0;
+      }
+      
+      // Boundary check (bottom) - prevent falling through
+      if (player.y > gameCanvas.height + 100) {
+        playerDie();
+        return;
+      }
+      
+      // Improved platform collision detection
+      player.grounded = false;
+      for (const platform of gameState.platforms) {
+        // Check if player is intersecting with platform vertically
+        if (player.x < platform.x + platform.width &&
+            player.x + player.width > platform.x &&
+            player.y + player.height >= platform.y &&
+            player.y < platform.y) {
+          
+          // Check if player was above the platform in previous frame
+          if (player.y + player.height - player.velY <= platform.y) {
+            player.y = platform.y - player.height;
+            player.velY = 0;
+            player.grounded = true;
+          }
+        }
+      }
+      
+      // Update camera position to follow player
+      gameState.cameraX = player.x - gameCanvas.width / 2;
+      gameState.cameraX = Math.max(0, Math.min(gameState.levelWidth - gameCanvas.width, gameState.cameraX));
+      
+      // Brain collection
+      for (const brain of gameState.brains) {
+        if (!brain.collected) {
+          const dx = Math.abs(player.x + player.width/2 - (brain.x + 10));
+          const dy = Math.abs(player.y + player.height/2 - (brain.y + 10));
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 20) {
+            brain.collected = true;
+            gameState.collectedBrains.push(brain);
+            gameState.levels[gameState.currentLevel-1].collected++;
+          }
+        }
+      }
+      
+      // Update enemies
+      for (const enemy of gameState.enemies) {
+        if (enemy.alive) {
+          // Move enemy based on type
+          if (enemy.type === 'ground') {
+            enemy.x += enemy.velX;
+            if (enemy.x <= enemy.minX || enemy.x + enemy.width >= enemy.maxX) {
+              enemy.velX *= -1;
+            }
+          }
+          else if (enemy.type === 'vertical') {
+            enemy.y += enemy.velY;
+            if (enemy.y <= enemy.minY || enemy.y >= enemy.maxY) {
+              enemy.velY *= -1;
+            }
+          }
+          else if (enemy.type === 'ranged') {
+            // Update attack timer
+            enemy.attackTimer--;
+            if (enemy.attackTimer <= 0) {
+              // Calculate direction to player
+              const dx = player.x - enemy.x;
+              const dy = player.y - enemy.y;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              
+              // Only shoot if player is in range
+              if (distance < enemy.attackRange) {
+                // Normalize direction
+                const velX = dx / distance * 3;
+                const velY = dy / distance * 3;
+                
+                // Create projectile
+                gameState.enemyProjectiles.push({
+                  x: enemy.x + enemy.width/2,
+                  y: enemy.y + enemy.height/2,
+                  width: 10,
+                  height: 10,
+                  velX: velX,
+                  velY: velY,
+                  distance: 0,
+                  range: enemy.attackRange
+                });
+                
+                // Reset attack timer
+                enemy.attackTimer = 120;
+              }
+            }
+          }
+          
+          // Enemy collision with player
+          if (
+            player.x < enemy.x + enemy.width &&
+            player.x + player.width > enemy.x &&
+            player.y < enemy.y + enemy.height &&
+            player.y + player.height > enemy.y
+          ) {
+            // Check if player is jumping on enemy
+            if (player.y + player.height < enemy.y + enemy.height/2 && player.velY > 0) {
+              // Player lands on enemy
+              enemy.alive = false;
+              player.velY = -10; // bounce
+            } else {
+              // Player touched enemy from side or below
+              playerDie();
+              return;
+            }
+          }
+        }
+      }
+      
+      // Update projectiles
+      updateProjectiles();
+      
+      // End flag collision
+      if (
+        player.x < gameState.endFlag.x + gameState.endFlag.width &&
+        player.x + player.width > gameState.endFlag.x &&
+        player.y < gameState.endFlag.y + gameState.endFlag.height &&
+        player.y + player.height > gameState.endFlag.y
+      ) {
+        endLevel();
+      }
+      
+      // Update shoot cooldown
+      if (gameState.shootCooldown > 0) {
+        gameState.shootCooldown--;
+      }
+    }
+    
+    // Update projectiles
+    function updateProjectiles() {
+      // Player projectiles
+      for (let i = gameState.playerProjectiles.length - 1; i >= 0; i--) {
+        const p = gameState.playerProjectiles[i];
+        p.x += p.velX;
+        p.distance += Math.abs(p.velX);
+        
+        // Check enemy collisions
+        let hit = false;
+        for (const enemy of gameState.enemies) {
+          if (enemy.alive && 
+              p.x < enemy.x + enemy.width &&
+              p.x + p.width > enemy.x &&
+              p.y < enemy.y + enemy.height &&
+              p.y + p.height > enemy.y) {
+            enemy.alive = false;
+            hit = true;
+            break;
+          }
+        }
+        
+        // Remove projectiles that hit or exceed range
+        if (hit || p.distance > p.range) {
+          gameState.playerProjectiles.splice(i, 1);
+        }
+      }
+      
+      // Enemy projectiles
+      for (let i = gameState.enemyProjectiles.length - 1; i >= 0; i--) {
+        const p = gameState.enemyProjectiles[i];
+        p.x += p.velX;
+        p.y += p.velY;
+        p.distance += Math.sqrt(p.velX * p.velX + p.velY * p.velY);
+        
+        // Check player collision
+        const player = gameState.player;
+        if (p.x < player.x + player.width &&
+            p.x + p.width > player.x &&
+            p.y < player.y + player.height &&
+            p.y + p.height > player.y) {
+          playerDie();
+          gameState.enemyProjectiles.splice(i, 1);
+        } 
+        // Remove projectiles that exceed range
+        else if (p.distance > p.range) {
+          gameState.enemyProjectiles.splice(i, 1);
+        }
+      }
+    }
+
+    function playerDie() {
+      if (gameState.player.lives <= 0) return;
+
+      gameState.player.lives--;
+
+      if (gameState.player.lives <= 0) {
+        gameState.player.lives = 0;
+        showRestartMessage("💀 Out of lives! Restarting level...");
+
+        setTimeout(() => {
+          // Reset player state
+          gameState.player.lives = 3;
+          gameState.player.brains = 0;
+          gameState.brainsCollected = 0;
+          gameState.collectedBrains = [];
+
+          // ✅ Safely reset visual counter only if it's visible
+          const counterEl = document.getElementById("collectedCount");
+          if (counterEl) counterEl.textContent = "0";
+
+          gameState.quizUnlocked = false;
+          gameState.brainsNeeded = (gameState.level === 3) ? 15 : 10;
+
+          // Reset player position and velocity
+          const player = gameState.player;
+          player.x = 100;
+          player.y = 300;
+          player.velX = 0;
+          player.velY = 0;
+          player.grounded = false;
+
+          // Reset collected brains
+          gameState.brains.forEach(brain => brain.collected = false);
+
+          hideRestartMessage();
+          setupLevel(gameState.currentLevel);
+        }, 2000);
+
+      } else {
+        respawnPlayer();
+      }
+    }
+
+    function showRestartMessage(message) {
+      let msg = document.getElementById('restartMessage');
+      if (!msg) {
+        msg = document.createElement('div');
+        msg.id = 'restartMessage';
+        msg.style.position = 'absolute';
+        msg.style.top = '40%';
+        msg.style.left = '50%';
+        msg.style.transform = 'translate(-50%, -50%)';
+        msg.style.background = '#fff';
+        msg.style.border = '2px solid #000';
+        msg.style.padding = '20px';
+        msg.style.fontSize = '20px';
+        msg.style.zIndex = 1000;
+        msg.style.color = '#000';
+        msg.style.maxWidth = '90%';
+        msg.style.textAlign = 'center';
+        document.body.appendChild(msg);
+      }
+      msg.textContent = message;
+      msg.style.display = 'block';
+    }
+
+    function hideRestartMessage() {
+      const msg = document.getElementById('restartMessage');
+      if (msg) msg.style.display = 'none';
+    }
+
+    function respawnPlayer() {
+      const player = gameState.player;
+      player.x = 100;
+      player.y = 300;
+      player.velX = 0;
+      player.velY = 0;
+      player.grounded = false;
+      gameState.isDead = false;
+      deathOverlay.style.opacity = '0';
+      setTimeout(() => {
+        deathOverlay.style.display = 'none';
+      }, 300);
+    }
+
+    // Draw everything
+    function draw() {
+      const cameraX = gameState.cameraX;
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+      
+      // Draw background
+      drawBackground(cameraX);
+      
+      // Draw platforms
+      ctx.fillStyle = '#8B4513';
+      for (const platform of gameState.platforms) {
+        ctx.fillRect(platform.x - cameraX, platform.y, platform.width, platform.height);
+        ctx.fillStyle = '#A0522D';
+        ctx.fillRect(platform.x - cameraX, platform.y, platform.width, 5);
+        ctx.fillStyle = '#8B4513';
+      }
+      
+      // Draw brains
+      for (const brain of gameState.brains) {
+        if (!brain.collected) {
+          ctx.fillStyle = '#FF66CC';
+          ctx.beginPath();
+          ctx.arc(brain.x - cameraX + 10, brain.y + 10, 10, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Draw brain details
+          ctx.fillStyle = '#FF99DD';
+          ctx.beginPath();
+          ctx.arc(brain.x - cameraX + 6, brain.y + 8, 3, 0, Math.PI * 2);
+          ctx.arc(brain.x - cameraX + 14, brain.y + 8, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      
+      // Draw enemies
+      for (const enemy of gameState.enemies) {
+        if (enemy.alive) {
+          // Draw enemy based on type
+          if (enemy.type === 'ground' || enemy.type === 'vertical') {
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(enemy.x - cameraX, enemy.y, enemy.width, enemy.height);
+            
+            // Draw enemy eyes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            const eyeOffset = (enemy.type === 'ground' && enemy.velX > 0) ? 8 : 2;
+            ctx.arc(enemy.x - cameraX + eyeOffset, enemy.y + 10, 4, 0, Math.PI * 2);
+            ctx.arc(enemy.x - cameraX + enemy.width - eyeOffset, enemy.y + 10, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(enemy.x - cameraX + eyeOffset, enemy.y + 10, 2, 0, Math.PI * 2);
+            ctx.arc(enemy.x - cameraX + enemy.width - eyeOffset, enemy.y + 10, 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          else if (enemy.type === 'ranged') {
+            // Draw ranged enemy (different color)
+            ctx.fillStyle = '#FFA500';
+            ctx.fillRect(enemy.x - cameraX, enemy.y, enemy.width, enemy.height);
+            
+            // Draw enemy eyes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(enemy.x - cameraX + 15, enemy.y + 10, 4, 0, Math.PI * 2);
+            ctx.arc(enemy.x - cameraX + enemy.width - 15, enemy.y + 10, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(enemy.x - cameraX + 15, enemy.y + 10, 2, 0, Math.PI * 2);
+            ctx.arc(enemy.x - cameraX + enemy.width - 15, enemy.y + 10, 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+      
+      // Draw projectiles
+ // Player projectiles (fixed version)
+for (const p of gameState.playerProjectiles) {
+  // Darker blue-teal gradient
+  const gradient = ctx.createRadialGradient(
+    p.x - cameraX, p.y, 0,
+    p.x - cameraX, p.y, p.width/2
+  );
+  gradient.addColorStop(0, 'rgba(0, 150, 200, 0.9)');  // Darker center
+  gradient.addColorStop(0.7, 'rgba(0, 100, 150, 0.8)'); // Mid tone
+  gradient.addColorStop(1, 'rgba(0, 80, 120, 0.6)');   // Darker edge
+
+  // Main bubble
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(p.x - cameraX, p.y, p.width/2, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Thicker dark outline
+  ctx.strokeStyle = 'rgba(0, 60, 90, 0.9)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(p.x - cameraX, p.y, p.width/2, 0, Math.PI * 2);
+  ctx.stroke();
+  
+  // Smaller, subtle highlight (FIXED: changed 'y' to 'p.y')
+  ctx.fillStyle = 'rgba(100, 200, 255, 0.4)';
+  ctx.beginPath();
+  ctx.arc(
+    p.x - cameraX - p.width/6, 
+    p.y - p.height/6,  // This was the problematic line - now fixed
+    p.width/5,
+    0, 
+    Math.PI * 2
+  );
+  ctx.fill();
+}
+
+// Enemy projectiles (darker and more ominous)
+for (const p of gameState.enemyProjectiles) {
+  // Dark red gradient
+  const gradient = ctx.createRadialGradient(
+    p.x - cameraX, p.y, 0,
+    p.x - cameraX, p.y, p.width/2
+  );
+  gradient.addColorStop(0, 'rgba(180, 0, 0, 0.9)');   // Blood red center
+  gradient.addColorStop(0.7, 'rgba(120, 0, 0, 0.8)'); // Dark red mid
+  gradient.addColorStop(1, 'rgba(80, 0, 0, 0.6)');    // Very dark edge
+
+  // Main projectile
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(p.x - cameraX, p.y, p.width/2, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Pulsing dark outline
+  const pulseSize = Math.sin(Date.now()/100) * 1.5;
+  ctx.strokeStyle = 'rgba(255, 100, 100, 0.8)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(
+    p.x - cameraX, 
+    p.y, 
+    p.width/2 + pulseSize, 
+    0, 
+    Math.PI * 2
+  );
+  ctx.stroke();
+  
+  // Dark core for contrast
+  ctx.fillStyle = 'rgba(50, 0, 0, 0.7)';
+  ctx.beginPath();
+  ctx.arc(p.x - cameraX, p.y, p.width/4, 0, Math.PI * 2);
+  ctx.fill();
+}
+      
+      // Draw end flag
+      ctx.fillStyle = '#4CAF50';
+      ctx.fillRect(gameState.endFlag.x - cameraX, gameState.endFlag.y, 5, gameState.endFlag.height);
+      
+      ctx.fillStyle = '#2196F3';
+      ctx.beginPath();
+      ctx.moveTo(gameState.endFlag.x - cameraX + 5, gameState.endFlag.y);
+      ctx.lineTo(gameState.endFlag.x - cameraX + 25, gameState.endFlag.y + 15);
+      ctx.lineTo(gameState.endFlag.x - cameraX + 5, gameState.endFlag.y + 30);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Draw player (tadpole) with fixed direction
+      const player = gameState.player;
+      const drawX = player.x - cameraX;
+      const drawY = player.y;
+      
+      ctx.fillStyle = '#4CAF50';
+      ctx.beginPath();
+      ctx.arc(
+        drawX + player.width/2, 
+        drawY + player.height/2, 
+        player.width/2, 0, Math.PI * 2
+      );
+      ctx.fill();
+      
+      // Draw tail with wiggle
+      ctx.beginPath();
+      const now = performance.now();
+      const isMoving = gameState.keys.left || gameState.keys.right;
+      const tailDirection = -player.direction || 1;
+      const wiggleY = isMoving ? Math.sin(now / 100) * 5 : 0;
+      const baseX = drawX + player.width / 2 + tailDirection * player.width / 2;
+      const baseY = drawY + player.height / 2 + wiggleY;
+      
+      ctx.moveTo(baseX, baseY);
+      ctx.lineTo(baseX + tailDirection * player.width / 2, baseY);
+      ctx.lineTo(baseX + tailDirection * player.width / 3, drawY + player.height + wiggleY);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Draw eyes
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(
+        drawX + player.width/3 + (player.direction > 0 ? player.width/3 : 0), 
+        drawY + player.height/3, 
+        4, 0, Math.PI * 2
+      );
+      ctx.fill();
+      
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(
+        drawX + player.width/3 + (player.direction > 0 ? player.width/3 : 0), 
+        drawY + player.height/3, 
+        2, 0, Math.PI * 2
+      );
+      ctx.fill();
+      
+      // Draw collected brain counter
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(10, 10, 180, 40);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = '16px Arial';
+      ctx.fillText(`Brains: ${gameState.collectedBrains.length}/${gameState.levels[gameState.currentLevel-1].brains}`, 20, 35);
+      
+      // Draw level indicator
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(gameCanvas.width - 190, 10, 180, 40);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = '16px Arial';
+      ctx.fillText(`Level: ${gameState.currentLevel}`, gameCanvas.width - 180, 35);
+      
+      // Draw lives
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(gameCanvas.width/2 - 60, 10, 120, 40);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = '16px Arial';
+      ctx.fillText(`Lives: ${gameState.player.lives}`, gameCanvas.width/2 - 50, 35);
+    }
+
+    // Draw background
+    function drawBackground(cameraX) {
+      // Sky gradient
+      const skyGradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+      skyGradient.addColorStop(0, '#87CEEB');
+      skyGradient.addColorStop(1, '#E0F7FA');
+      ctx.fillStyle = skyGradient;
+      ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+      
+      // Clouds
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      drawCloud(100 - cameraX/3, 50);
+      drawCloud(300 - cameraX/3, 80);
+      drawCloud(500 - cameraX/3, 60);
+      drawCloud(700 - cameraX/3, 70);
+      drawCloud(900 - cameraX/3, 65);
+      drawCloud(1100 - cameraX/3, 55);
+      
+      // Sun rays
+      const sunX = 700;
+      const sunY = 80;
+      const rayLength = 60;
+      const rayCount = 12;
+      
+      ctx.strokeStyle = 'rgba(255, 235, 59, 0.6)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < rayCount; i++) {
+        const angle = (Math.PI * 2 / rayCount) * i;
+        const startX = sunX + Math.cos(angle) * 45;
+        const startY = sunY + Math.sin(angle) * 45;
+        const endX = sunX + Math.cos(angle) * (45 + rayLength);
+        const endY = sunY + Math.sin(angle) * (45 + rayLength);
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+      }
+      
+      // Sun body
+      ctx.fillStyle = '#FFEB3B';
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 40, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Distant hills
+      ctx.fillStyle = 'rgba(144, 238, 144, 0.6)';
+      ctx.beginPath();
+      ctx.moveTo(0 - cameraX/4, 350);
+      for (let i = 0; i < 10; i++) {
+        ctx.lineTo(i * 200 - cameraX/4, 300 - Math.sin(i) * 30);
+      }
+      ctx.lineTo(2000, 350);
+      ctx.lineTo(0, 350);
+      ctx.fill();
+    }
+
+    // Draw a cloud
+    function drawCloud(x, y) {
+      ctx.beginPath();
+      ctx.arc(x, y, 20, 0, Math.PI * 2);
+      ctx.arc(x + 15, y - 10, 15, 0, Math.PI * 2);
+      ctx.arc(x + 30, y, 20, 0, Math.PI * 2);
+      ctx.arc(x + 15, y + 10, 15, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // End level and show quiz
+    function endLevel() {
+      gameState.gameActive = false;
+      showScreen(quizScreen);
+      
+      // Get the appropriate question bank
+      let bank;
+      if (gameState.currentLevel === 1) bank = questionBanks.easy;
+      else if (gameState.currentLevel === 2) bank = questionBanks.medium;
+      else bank = questionBanks.hard;
+      
+      // Get random questions
+      gameState.quizQuestions = [];
+      const numQuestions = Math.min(gameState.collectedBrains.length, bank.length);
+      
+      // Create a copy of the bank to avoid duplicates
+      const availableQuestions = [...bank];
+      
+      for (let i = 0; i < numQuestions; i++) {
+        const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+        gameState.quizQuestions.push(availableQuestions[randomIndex]);
+        availableQuestions.splice(randomIndex, 1);
+      }
+      
+      gameState.score.total = gameState.quizQuestions.length;
+      gameState.currentQuestion = 0;
+      
+      collectedCount.textContent = gameState.collectedBrains.length;
+      showQuestion();
+    }
+
+    // Show current question
+    function showQuestion() {
+      if (gameState.currentQuestion >= gameState.quizQuestions.length) {
+        showScoreScreen();
+        return;
+      }
+      
+      const question = gameState.quizQuestions[gameState.currentQuestion];
+      questionText.textContent = question.question;
+      
+      optionsContainer.innerHTML = '';
+      question.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'optionBtn';
+        button.textContent = option;
+        button.dataset.index = index;
+        button.addEventListener('click', () => checkAnswer(index, question.answer, button));
+        if (isMobile) {
+          button.addEventListener('touchstart', () => checkAnswer(index, question.answer, button));
+        }
+        optionsContainer.appendChild(button);
+      });
+    }
+
+    // Check if answer is correct
+    function checkAnswer(selected, correct, button) {
+      // Disable all buttons
+      const buttons = optionsContainer.querySelectorAll('.optionBtn');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.cursor = 'default';
+      });
+      
+      // Mark correct and incorrect
+      if (selected === correct) {
+        button.classList.add('correct');
+        gameState.score.correct++;
+      } else {
+        button.classList.add('incorrect');
+        // Also highlight correct answer
+        buttons[correct].classList.add('correct');
+      }
+      
+      // Move to next question after delay
+      setTimeout(() => {
+        gameState.currentQuestion++;
+        showQuestion();
+      }, 1500);
+    }
+
+    function showScoreScreen() {
+      showScreen(scoreScreen);
+
+      const correct = gameState.score.correct;
+      const total = gameState.score.total;
+      const percentage = Math.round((correct / total) * 100);
+
+      scoreSummary.textContent = `You scored ${correct}/${total} (${percentage}%) on the ${gameState.levels[gameState.currentLevel - 1].name} quiz!`;
+
+      if (gameState.currentLevel === 3) {
+        // Immediately hide score screen and show final screen
+        setTimeout(() => {
+          showScreen(finalScreen);
+          finalText.textContent =
+            `🎓 You've completed all 3 levels!\n` +
+            `Final Score: ${correct}/${total} (${percentage}%)\n\n` +
+            `Thanks for playing Tadpole Trials!\nGood luck with your Biology studies! 🧠📘`;
+        }, 1500);
+      } else {
+        nextBtn.style.display = 'inline-block';
+      }
+    }
+
+    // Retry current level
+    function retryLevel() {
+      showScreen(gameCanvas);
+      setupLevel(gameState.currentLevel);
+      gameState.gameActive = true;
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Go to next level
+    function nextLevel() {
+      if (gameState.currentLevel < 3) {
+        setupLevel(gameState.currentLevel + 1);
+        showScreen(gameCanvas);
+        gameState.gameActive = true;
+        requestAnimationFrame(gameLoop);
+      } else {
+        showFinalScreen();
+      }
+    }
+
+    // Show final screen
+    function showFinalScreen() {
+      showScreen(finalScreen);
+    }
+
+    // Restart game
+    function restartGame() {
+      showScreen(startScreen);
+    }
+
+    // Reset game state
+    function resetGameState() {
+      gameState.currentLevel = 1;
+      gameState.levels.forEach(level => {
+        level.collected = 0;
+      });
+    }
+
+    // Handle key down
+    function handleKeyDown(e) {
+      if (!gameState.gameActive) return;
+      
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        gameState.keys.left = true;
+      } else if (e.key === 'ArrowRight' || e.key === 'd') {
+        gameState.keys.right = true;
+      } else if ((e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') && gameState.player.grounded) {
+        gameState.keys.up = true;
+      } else if (e.key === 'r' || e.key === 'R') {
+        gameState.keys.r = true;
+      } else if (e.key === 'f' || e.key === 'F') {
+        gameState.keys.shoot = true;
+      }
+    }
+
+    // Handle key up
+    function handleKeyUp(e) {
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        gameState.keys.left = false;
+      } else if (e.key === 'ArrowRight' || e.key === 'd') {
+        gameState.keys.right = false;
+      } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') {
+        gameState.keys.up = false;
+      } else if (e.key === 'r' || e.key === 'R') {
+        gameState.keys.r = false;
+      } else if (e.key === 'f' || e.key === 'F') {
+        gameState.keys.shoot = false;
+      }
+    }
+
+   // Question banks
+    const questionBanks = {
+      easy: [
+        {
+          question: "What is the basic unit of life?",
+          options: ["Atom", "Cell", "Tissue", "Organelle"],
+          answer: 1
+        },
+        {
+          question: "Which molecule carries genetic information?",
+          options: ["Protein", "DNA", "Lipid", "ATP"],
+          answer: 1
+        },
+        {
+          question: "What is the role of mRNA?",
+          options: ["Cuts DNA", "Synthesises proteins", "Carries genetic code from DNA to ribosome", "Produces glucose"],
+          answer: 2
+        },
+        {
+          question: "Which organelle is the site of protein synthesis?",
+          options: ["Golgi apparatus", "Nucleus", "Ribosome", "Lysosome"],
+          answer: 2
+        },
+        {
+          question: "Which stage of cellular respiration produces 2 ATP?",
+          options: ["Glycolysis", "Electron Transport Chain", "Light-dependent stage", "Photosystem II"],
+          answer: 0
+        },
+        {
+          question: "What gas do plants take in for photosynthesis?",
+          options: ["Oxygen", "Carbon dioxide", "Hydrogen", "Methane"],
+          answer: 1
+        },
+        {
+          question: "Which type of immunity results from a vaccine?",
+          options: ["Natural passive", "Natural active", "Artificial passive", "Artificial active"],
+          answer: 3
+        },
+        {
+          question: "Which barrier prevents pathogen entry in plants?",
+          options: ["Skin", "Waxy cuticle", "White blood cells", "Platelets"],
+          answer: 1
+        },
+        {
+          question: "What is an intron?",
+          options: ["A protein", "A coding region of DNA", "A non-coding region of a gene", "A ribosome"],
+          answer: 2
+        },
+        {
+          question: "Which stage in photosynthesis produces glucose?",
+          options: ["Light-dependent", "Light-independent", "Krebs cycle", "Electron transport chain"],
+          answer: 1
+        }
+      ],
+      medium: [
+        {
+          question: "Which RNA molecule brings amino acids to the ribosome?",
+          options: ["mRNA", "rRNA", "tRNA", "siRNA"],
+          answer: 2
+        },
+        {
+          question: "What is a bioethical concern of GM crops?",
+          options: ["Low yields", "Misuse of fertilizers", "Unintended environmental impacts", "Inability to photosynthesise"],
+          answer: 2
+        },
+        {
+          question: "Which part of a gene is involved in regulation?",
+          options: ["Exon", "Promoter", "Intron", "tRNA"],
+          answer: 1
+        },
+        {
+          question: "Which statement describes the universal nature of the genetic code?",
+          options: ["All organisms use different codons", "Codons are randomly assigned", "All organisms share the same codon meanings", "Codons change across species"],
+          answer: 2
+        },
+        {
+          question: "What role do coenzymes like NADH play in respiration?",
+          options: ["Provide energy", "Carry hydrogen/electrons", "Break down glucose", "Form cell membranes"],
+          answer: 1
+        },
+        {
+          question: "What is a key difference between CRISPR-Cas9 and restriction enzymes?",
+          options: ["Only CRISPR-Cas9 can cut DNA", "Restriction enzymes are programmable", "CRISPR-Cas9 can be directed to any DNA sequence using RNA", "Restriction enzymes are found in eukaryotes"],
+          answer: 2
+        },
+        {
+          question: "Which factor would most decrease enzyme activity?",
+          options: ["Slight temperature increase", "Optimal pH", "Low substrate concentration", "Presence of a non-competitive inhibitor"],
+          answer: 3
+        },
+        {
+          question: "What defines herd immunity?",
+          options: ["Only unvaccinated individuals are protected", "Enough individuals are immune to prevent spread", "The disease has been eradicated", "All people must be vaccinated"],
+          answer: 1
+        },
+        {
+          question: "What does a phylogenetic tree show?",
+          options: ["Protein function", "Organ growth", "Genetic relatedness", "Food webs"],
+          answer: 2
+        },
+        {
+          question: "Why might mtDNA be used in evolutionary studies?",
+          options: ["It mutates slowly", "It's inherited maternally and mutates rapidly", "It can't be extracted", "It encodes traits like height"],
+          answer: 1
+        }
+      ],
+      hard: [
+        {
+          question: "In the CRISPR-Cas9 system, where must the PAM be located relative to the DNA sequence targeted by the single-guide RNA?",
+          options: [
+            "Upstream (5′ side) on the target strand",
+            "Downstream (3′ side) on the non-target strand",
+            "Anywhere within 20 bp on either strand",
+            "Within the guide RNA itself"
+          ],
+          answer: 1
+        },
+        {
+          question: "A bacterium has high tryptophan levels but its trp repressor cannot bind the operator. Which mechanism will still reduce transcription of the structural genes?",
+          options: [
+            "Inducer exclusion",
+            "Catabolite repression",
+            "Attenuation via formation of a terminator hairpin",
+            "Antisense RNA"
+          ],
+          answer: 2
+        },
+        {
+          question: "Why does the trp operon show a low basal (leaky) transcription rate even when the active repressor is bound?",
+          options: [
+            "RNA polymerase can never bind",
+            "The repressor periodically dissociates, allowing short bursts of initiation",
+            "Attenuation fails at high tryptophan",
+            "Tryptophan is rapidly degraded"
+          ],
+          answer: 1
+        },
+        {
+          question: "How do monoclonal antibodies function when used as an antivenom for snake bites?",
+options: [
+  "They activate memory B cells to produce specific antibodies.",
+  "They neutralise venom toxins by binding to them directly.",
+  "They stimulate cytotoxic T cells to destroy venom-infected cells.",
+  "They trigger inflammation to remove venom from tissues."
+],
+answer: 1
+        },
+        {
+          question: "Why does the total ATP yield from aerobic respiration range between 26 and 28 molecules per glucose?",
+options: [
+  "FADH₂ produces more ATP than NADH in the electron transport chain",
+  "Cytosolic NADH transfers electrons via different shuttles, affecting whether they reduce FAD or NAD⁺",
+  "The number of CO₂ molecules produced varies",
+  "Oxygen availability changes the number of protons pumped"
+],
+answer: 1
+        },
+        {
+          question: "Which correctly contrasts C₄ and CAM plants in limiting photorespiration?",
+          options: [
+            "C₄ separates Calvin cycle by time; CAM by space",
+            "C₄ fixes CO₂ at night; CAM in bundle-sheath cells",
+            "C₄ uses PEP-carboxylase in mesophyll cells; CAM stores fixed CO₂ as malate at night for daytime Calvin cycle",
+            "Both run Calvin cycle at night"
+          ],
+          answer: 2
+        },
+        {
+          question: "During alcoholic fermentation, decarboxylation of pyruvate directly produces:",
+          options: [
+            "Acetyl-CoA",
+            "Ethanol",
+            "CO₂ and acetaldehyde",
+            "Lactate"
+          ],
+          answer: 2
+        },
+        {
+          question: "During PCR, why does the DNA polymerase remain active at high temperatures?",
+          options: [
+            "It is re-added after each cycle",
+            "It is sourced from a thermophilic organism such as Thermus aquaticus",
+            "The buffer neutralises heat",
+            "DNA primers stabilise the enzyme"
+          ],
+          answer: 1
+        },
+        {
+          question: "Which of the following is true about MHC class I and MHC class II molecules?",
+          options: [
+            "MHC I presents extracellular antigens to B cells",
+            "MHC II is found on all nucleated cells",
+            "MHC I presents intracellular peptides to cytotoxic T cells",
+            "MHC II activates cytotoxic T cells"
+          ],
+          answer: 2
+        },
+        {
+          question: "A viral peptide presented on MHC II of a dendritic cell will be recognised by which lymphocyte, and what is the immediate outcome?",
+          options: [
+            "Cytotoxic T → apoptosis",
+            "Helper T → activation & cytokine release",
+            "B cell → antibody secretion",
+            "NK cell → perforin release"
+          ],
+          answer: 1
+        },
+        {
+          question: "Why do scientists use insulin cDNA instead of the full human insulin gene when inserting it into E. coli for protein production?",
+options: [
+  "cDNA contains bacterial promoters needed for transcription",
+  "The full human gene contains introns that E. coli cannot process",
+  "cDNA is circular like a plasmid",
+  "The human gene lacks a ribosome-binding site"
+],
+answer: 1
+        },
+        {
+          question: "Why is the proteome considered more complex than the genome in a multicellular organism?",
+options: [
+  "The proteome includes all non-coding DNA elements",
+  "A single gene can give rise to multiple proteins via alternative splicing and post-translational modifications",
+  "Proteins can directly encode new DNA sequences",
+  "The genome changes in different cell types while the proteome stays constant"
+],
+answer: 1
+        },
+        {
+          question: "What does a small difference in DNA sequences between two species suggest about their evolutionary relationship?",
+          options: [
+            "They do not share a common ancestor",
+            "They likely evolved under different environmental pressures",
+            "They diverged from a common ancestor relatively recently",
+            "One evolved directly from the other"
+          ],
+          answer: 2
+        },
+        {
+          question: "Which best describes the difference between absolute and relative dating?",
+          options: [
+            "Absolute dating is faster",
+            "Relative dating uses isotopes; absolute dating uses layers",
+            "Absolute dating estimates actual age in years; relative dating compares order of events",
+            "Relative dating only works for rocks younger than 10,000 years"
+          ],
+          answer: 2
+        },
+        {
+          question: "What does a transitional fossil most directly demonstrate?",
+          options: [
+            "Extinction of older species",
+            "Sudden appearance of new traits",
+            "Intermediate traits between ancestral and derived species",
+            "Variation within a single population"
+          ],
+          answer: 2
+        }
+      ]
+    };
+
+    // Initialize the game when page loads
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>

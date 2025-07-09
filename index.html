@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tadpole Trials - Enhanced Biology Game</title>
+  <title>Tadpole Trials - 1st Rank Biology</title>
   <style>
     * {
       margin: 0;
@@ -507,9 +507,9 @@
         
         <div class="stats">
           <p>⭐ <span>Levels:</span></p>
-          <p>1: <span>Easy</span> (10 questions)</p>
-          <p>2: <span>Medium</span> (10 questions)</p>
-          <p>3: <span>Hard</span> (15 questions)</p>
+          <p>1-2: <span>Easy</span> (10 questions)</p>
+          <p>2-3: <span>Medium</span> (10 questions)</p>
+          <p>4-7: <span>Hard</span> (15 questions)</p>
         </div>
       </div>
       <button id="startBtn">Start Game</button>
@@ -557,12 +557,21 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
     
     // Game state with enhanced physics and enemies
     const gameState = {
-      currentLevel: 1,
-      levels: [
-        { name: "Easy", questions: 10, collected: 0, brains: 10 },
-        { name: "Medium", questions: 10, collected: 0, brains: 10 },
-        { name: "Hard", questions: 15, collected: 0, brains: 15 }
-      ],
+  currentLevel: 1,
+  levels: [
+    // First 2 levels - Easy
+    { name: "Pond", questions: 10, collected: 0, brains: 5 },
+    { name: "Stream", questions: 10, collected: 0, brains: 5 },
+    
+    // Next 2 levels - Medium
+    { name: "Forest", questions: 10, collected: 0, brains: 5 },
+    { name: "Caves", questions: 10, collected: 0, brains: 5 },
+    
+    // Final 3 levels - Hard
+    { name: "Volcano", questions: 15, collected: 0, brains: 5 },
+    { name: "City", questions: 15, collected: 0, brains: 5 },
+    { name: "Ocean", questions: 15, collected: 0, brains: 5 }
+  ],
       player: {
         x: 100,
         y: 300,
@@ -588,6 +597,7 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
       endFlag: null,
       collectedBrains: [],
       quizQuestions: [],
+      usedQuestions: [], // Track all used questions across levels
       currentQuestion: 0,
       score: {
         correct: 0,
@@ -725,6 +735,10 @@ function showScreen(screen) {
       gameState.playerProjectiles = [];
       gameState.enemyProjectiles = [];
       gameState.quizQuestions = [];
+      // Only reset usedQuestions if starting a new game (level 1)
+      if (level === 1) {
+        gameState.usedQuestions = [];
+      }
       gameState.score = { correct: 0, total: 0 };
       gameState.cameraX = 0;
       gameState.isDead = false;
@@ -748,16 +762,14 @@ function showScreen(screen) {
         gameState.platforms.push({x: 1200, y: 230, width: 100, height: 20});
         gameState.platforms.push({x: 1400, y: 280, width: 100, height: 20});
         gameState.platforms.push({x: 1600, y: 230, width: 100, height: 20});
-        gameState.platforms.push({x: 1800, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 1800, y: 280, width: 60, height: 20});
         
-        // Add 10 brains
-        for (let i = 0; i < 10; i++) {
-          gameState.brains.push({
-            x: 250 + i * 180,
-            y: 250 - (i % 3) * 40,
-            collected: false
-          });
-        }
+        // Add 5 brains
+         gameState.brains.push({x: 250, y: 250, collected: false});
+  gameState.brains.push({x: 600, y: 210, collected: false});
+  gameState.brains.push({x: 950, y: 250, collected: false});
+  gameState.brains.push({x: 1300, y: 210, collected: false});
+  gameState.brains.push({x: 1650, y: 250, collected: false});
         
         // Add enemies
         gameState.enemies.push({
@@ -772,7 +784,14 @@ function showScreen(screen) {
           type: 'ground',
           alive: true
         });
-        
+        gameState.enemies.push({
+  x: 900, y: 320, width: 30, height: 30, 
+  velX: 0.8, minX: 800, maxX: 1000,
+  type: 'ground',
+  alive: true
+});
+
+
       } else if (level === 2) {
         gameState.levelWidth = 2500;
         
@@ -786,17 +805,15 @@ function showScreen(screen) {
         gameState.platforms.push({x: 1400, y: 280, width: 100, height: 20});
         gameState.platforms.push({x: 1600, y: 230, width: 100, height: 20});
         gameState.platforms.push({x: 1800, y: 280, width: 100, height: 20});
-        gameState.platforms.push({x: 2000, y: 230, width: 100, height: 20});
-        gameState.platforms.push({x: 2200, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 2000, y: 280, width: 100, height: 20});
+        gameState.platforms.push({x: 2200, y: 340, width: 300, height: 30});
         
-        // Add 10 brains
-        for (let i = 0; i < 10; i++) {
-          gameState.brains.push({
-            x: 250 + i * 220,
-            y: 250 - (i % 4) * 40,
-            collected: false
-          });
-        }
+        // Add 5 brains
+          gameState.brains.push({x: 300, y: 230, collected: false});
+  gameState.brains.push({x: 750, y: 180, collected: false});
+  gameState.brains.push({x: 1200, y: 230, collected: false});
+  gameState.brains.push({x: 1700, y: 180, collected: false});
+  gameState.brains.push({x: 2200, y: 300, collected: false});
         
         // Add enemies
         gameState.enemies.push({
@@ -818,7 +835,21 @@ function showScreen(screen) {
           type: 'vertical',
           alive: true
         });
-        
+        gameState.enemies.push({
+          x: 900, y: 150, width: 30, height: 30,
+          velY: 1.5, minY: 100, maxY: 250,
+          type: 'vertical',
+          alive: true
+        });
+// Ranged enemy
+        gameState.enemies.push({
+          x: 1000, y: 150, width: 30, height: 30, 
+          velX: 0, attackTimer: 90, attackRange: 300,
+          type: 'ranged',
+          alive: true
+        });
+       
+
       } else if (level === 3) {
         gameState.levelWidth = 3000;
         
@@ -836,21 +867,15 @@ function showScreen(screen) {
         gameState.platforms.push({x: 2200, y: 180, width: 70, height: 20});
         gameState.platforms.push({x: 2400, y: 230, width: 70, height: 20});
         gameState.platforms.push({x: 2600, y: 280, width: 200, height: 20});
-        
-        // Add 15 brains
-        for (let i = 0; i < 14; i++) {
-          gameState.brains.push({
-            x: 250 + i * 180,
-            y: 250 - (i % 5) * 40,
-            collected: false
-          });
-        }
-        // Add the 15th brain in a more accessible position
-        gameState.brains.push({
-          x: 2750,
-          y: 230,
-          collected: false
-        });
+        gameState.platforms.push({x: 2800, y: 340, width: 200, height: 20});
+
+          // 5 brains (strategic placement on narrow platforms)
+  gameState.brains.push({x: 250, y: 250, collected: false});
+  gameState.brains.push({x: 650, y: 160, collected: false}); // Requires precise jump
+  gameState.brains.push({x: 1250, y: 160, collected: false});
+  gameState.brains.push({x: 1850, y: 250, collected: false});
+  gameState.brains.push({x: 2350, y: 160, collected: false}); // Challenge brain
+
         
         // Add enemies
         gameState.enemies.push({
@@ -865,6 +890,19 @@ function showScreen(screen) {
           type: 'ground',
           alive: true
         });
+        // Vertical moving enemy
+        gameState.enemies.push({
+          x: 1800, y: 150, width: 30, height: 30,
+          velY: 1.5, minY: 100, maxY: 250,
+          type: 'vertical',
+          alive: true
+        });
+        gameState.enemies.push({
+          x: 900, y: 150, width: 30, height: 30,
+          velY: 1.5, minY: 100, maxY: 250,
+          type: 'vertical',
+          alive: true
+        });
         // Ranged enemy
         gameState.enemies.push({
           x: 2300, y: 150, width: 30, height: 30, 
@@ -872,7 +910,348 @@ function showScreen(screen) {
           type: 'ranged',
           alive: true
         });
+        gameState.enemies.push({
+          x: 1100, y: 150, width: 30, height: 30, 
+          velX: 0, attackTimer: 60, attackRange: 300,
+          type: 'ranged',
+          alive: true
+        });
+
+
+        } else if (level === 4) {
+        gameState.levelWidth = 3000;
+        
+       // Level 4 - Optimized Platform Layout
+gameState.platforms = [
+  // Starting area
+  {x: 50, y: 330, width: 220, height: 25},   // Starter platform
+  {x: 320, y: 280, width: 140, height: 25},  // First slope
+
+  // First challenge section
+  {x: 520, y: 330, width: 120, height: 25},
+  {x: 700, y: 280, width: 100, height: 25},  // First jump down
+  {x: 900, y: 330, width: 120, height: 25},  // Landing platform
+
+  // Middle section 
+  {x: 1100, y: 280, width: 100, height: 25}, // Second jump down
+  {x: 1350, y: 330, width: 120, height: 25}, // Landing
+
+  // Upper section
+  {x: 1550, y: 280, width: 100, height: 25}, // Third jump down
+  {x: 1750, y: 330, width: 160, height: 25}, // Landing
+
+  // Final stretch
+  {x: 2000, y: 280, width: 130, height: 25}, // Final drop
+  {x: 2300, y: 330, width: 260, height: 25}, // Main final platform
+  {x: 2700, y: 330, width: 250, height: 25}  // Victory landing
+];
+
+// Strategic safety nets (only where needed)
+gameState.safetyNets = [
+  {x: 650, y: 420, width: 300, height: 25},  // Below first challenge
+  {x: 1050, y: 420, width: 300, height: 25}, // Below middle section
+  {x: 2500, y: 420, width: 500, height: 25}  // Final safety
+];
+
+// Brains placed on main path platforms
+gameState.brains = [
+  {x: 150, y: 300, collected: false},       // Starter
+  {x: 400, y: 250, collected: false},       // First slope
+  {x: 750, y: 250, collected: false},       // First challenge
+  {x: 1200, y: 250, collected: false},      // Middle section
+  {x: 2400, y: 300, collected: false}       // Final reward
+];
+
+// Adjusted brain positions
+gameState.brains = [
+  {x: 150, y: 300, collected: false},      // Starter brain
+  {x: 400, y: 250, collected: false},      // Easy slope brain
+  {x: 750, y: 250, collected: false},      // First challenge
+  {x: 1150, y: 250, collected: false},     // Middle section
+  {x: 2400, y: 300, collected: false}      // Final reward
+];
+
+// Tamer enemies
+gameState.enemies = [
+  {
+    x: 600, y: 250, width: 35, height: 35, // Bigger hitbox = easier to avoid
+    velX: 0.8, minX: 550, maxX: 750,       // Slower
+    type: 'ground',
+    alive: true
+  },
+  {
+    x: 1200, y: 230, width: 35, height: 35,
+    velY: 0.7, minY: 210, maxY: 270,       // Reduced range
+    type: 'vertical',
+    alive: true
+  }
+];
+
+  } else if (level === 5) {
+    gameState.levelWidth = 3200; // Slightly longer for new enemies
+    
+    // More aggressive platform layout with narrower platforms
+    gameState.platforms = [
+        // Starting area (tighter)
+        {x: 50, y: 330, width: 180, height: 20},   // Starter platform
+        {x: 300, y: 280, width: 100, height: 20},  // First drop (narrower)
+
+        // First challenge section (more enemies)
+        {x: 500, y: 330, width: 85, height: 20},
+        {x: 700, y: 280, width: 75, height: 20},   // Precise landing
+        {x: 900, y: 330, width: 80, height: 20},   // Now more dangerous
+
+        // Middle section (added complexity)
+        {x: 1100, y: 280, width: 75, height: 20},
+        {x: 1350, y: 330, width: 80, height: 20},
+        {x: 1550, y: 260, width: 65, height: 20},  // New low platform
+
+        // Upper section (more vertical)
+        {x: 1750, y: 210, width: 70, height: 20},
+        {x: 1950, y: 290, width: 80, height: 20},  // Gap jump
+        {x: 2200, y: 330, width: 100, height: 20},
+
+        // Final stretch (more challenging)
+        {x: 2500, y: 280, width: 70, height: 20},   // Platform 10
+{x: 2650, y: 310, width: 60, height: 20},   // NEW mid-way platform (small, requires precision)
+{x: 2800, y: 330, width: 300, height: 20},  // Platform 11 (now reachable)
+    ];
+
+    // Reduced safety nets (only critical spots)
+    gameState.safetyNets = [
+        {x: 800, y: 420, width: 200, height: 20},
+        {x: 2600, y: 420, width: 400, height: 20}
+    ];
+
+    // Brains moved to riskier positions
+    gameState.brains = [
+        {x: 350, y: 250, collected: false},      // After first drop
+        {x: 730, y: 250, collected: false},      // Requires enemy dodging
+        {x: 1370, y: 300, collected: false},     // Above moving enemy
+        {x: 1770, y: 170, collected: false},     // High-risk position
+        {x: 2550, y: 250, collected: false}      // Final challenge
+    ];
+
+    // More numerous and aggressive enemies
+    gameState.enemies = [
+        // First section enemies
+        {
+            x: 400, y: 230, width: 30, height: 30,
+            velX: 1.5, minX: 350, maxX: 600,
+            type: 'ground',
+            alive: true
+        },
+        {
+            x: 800, y: 250, width: 30, height: 30,
+            velY: 1.2, minY: 230, maxY: 350,
+            type: 'vertical',
+            alive: true
+        },
+        
+        // Middle section ambush
+        {
+            x: 1200, y: 200, width: 25, height: 40,
+            velX: 2.0, minX: 1100, maxX: 1400,
+            type: 'ground',
+            alive: true
+        },
+        {
+            x: 1500, y: 210, width: 30, height: 30,
+            velX: 0, attackTimer: 40, attackRange: 350,
+            type: 'ranged',
+            alive: true
+        },
+        
+        // Final stretch challenges
+        {
+            x: 2000, y: 250, width: 30, height: 30,
+            velX: 1.8, minX: 1900, maxX: 2300,
+            type: 'ground',
+            alive: true
+        },
+        {
+            x: 2400, y: 200, width: 30, height: 50,
+            velY: 1.5, minY: 180, maxY: 300,
+            type: 'vertical',
+            alive: true
+        }
+    ];
+
+    // New environmental hazard
+    gameState.hazards = [
+        {x: 1600, y: 400, width: 400, height: 20, type: 'lava'},
+        {x: 2100, y: 400, width: 300, height: 20, type: 'spikes'}
+    ];
+
+  
+  } else if (level === 6) {
+  gameState.levelWidth = 4000;
+  
+  // Platform Layout - Demanding but achievable jumps
+  gameState.platforms = [
+    // Starting section (warm-up)
+    {x: 0, y: 380, width: 200, height: 20},
+    {x: 200, y: 380, width: 100, height: 20},
+    {x: 400, y: 350, width: 80, height: 20},
+    
+    // First challenge cluster
+    {x: 600, y: 320, width: 60, height: 20},
+    {x: 800, y: 290, width: 60, height: 20},  // First precision jump
+    {x: 1000, y: 320, width: 80, height: 20}, // Landing after enemy gauntlet
+    
+    // Elevation climb
+    {x: 1200, y: 280, width: 120, height: 20},
+    {x: 1500, y: 240, width: 60, height: 20},
+    {x: 1650, y: 200, width: 100, height: 20}, // Highest point
+    
+    // Descending maze
+    {x: 1980, y: 240, width: 100, height: 20},
+    {x: 2200, y: 280, width: 140, height: 20},
+    {x: 2600, y: 320, width: 140, height: 20},
+    
+    // Final stretch
+    {x: 3000, y: 280, width: 80, height: 20}, // Narrow platform
+    {x: 3300, y: 320, width: 210, height: 20}, // Safe zone
+    {x: 3600, y: 350, width: 400, height: 20}  // Exit
+  ];
+
+  // Brains - Require risk or skill
+  gameState.brains = [
+    {x: 820, y: 270, collected: false},  // Above first enemy cluster
+    {x: 1520, y: 220, collected: false}, // At elevation peak
+    {x: 2020, y: 220, collected: false}, // Descending maze
+    {x: 2620, y: 300, collected: false}, // Before final stretch
+    {x: 3050, y: 260, collected: false}  // Precarious final brain
+  ];
+
+  // Enemies - Enhanced from Level 5 but fair
+  gameState.enemies = [
+    // Fast ground patrols
+    {
+      x: 300, y: 310, width: 30, height: 40, // Taller hitbox
+      velX: 3.0, minX: 200, maxX: 700,      // Faster
+      type: 'ground',
+      alive: true
+    },
+    {
+      x: 1100, y: 280, width: 30, height: 40,
+      velX: -3.0, minX: 900, maxX: 1400,
+      type: 'ground',
+      alive: true
+    },
+    
+    // Vertical threats
+    {
+      x: 1700, y: 150, width: 30, height: 50,
+      velY: 3.0, minY: 150, maxY: 300,      // Faster + extended range
+      type: 'vertical',
+      alive: true
+    },
+    {
+      x: 2500, y: 150, width: 30, height: 50,
+      velY: 2.8, minY: 150, maxY: 350,
+      type: 'vertical',
+      alive: true
+    },
+    
+    // Ranged enemy
+    {
+      x: 2300, y: 200, width: 30, height: 30,
+      velX: 0, attackTimer: 15, attackRange: 350, // Faster attacks
+      type: 'ranged',
+      alive: true
+    },
+    
+    // Final ambush
+    {
+      x: 3200, y: 280, width: 40, height: 40, // Larger
+      velX: 2.5, minX: 3000, maxX: 3400,
+      type: 'ground',
+      alive: true
+    }
+  ];
+
+  // Hazards - Punish mistakes
+  gameState.hazards = [
+    {x: 700, y: 400, width: 600, height: 50, type: 'spikes'},  // Below first cluster
+    {x: 1800, y: 400, width: 500, height: 50, type: 'lava'},   // Under elevation
+    {x: 2800, y: 400, width: 800, height: 50, type: 'void'}    // Final stretch
+  ];
+
+} else if (level === 7) {
+  gameState.levelWidth = 5000;
+  
+  // Final challenge - mix of narrow platforms and open spaces
+  gameState.platforms.push({x: 200, y: 280, width: 40, height: 20});
+  gameState.platforms.push({x: 400, y: 230, width: 25, height: 20}); // Hardest narrow
+  gameState.platforms.push({x: 600, y: 180, width: 40, height: 20});
+  gameState.platforms.push({x: 900, y: 230, width: 25, height: 20}); // Hardest narrow
+  gameState.platforms.push({x: 1200, y: 280, width: 150, height: 20}); // Rest area
+  gameState.platforms.push({x: 1500, y: 230, width: 25, height: 20}); // Hardest narrow
+  gameState.platforms.push({x: 1800, y: 180, width: 40, height: 20});
+  gameState.platforms.push({x: 2100, y: 230, width: 25, height: 20}); // Hardest narrow
+  gameState.platforms.push({x: 2400, y: 280, width: 150, height: 20}); // Rest area
+  gameState.platforms.push({x: 2700, y: 230, width: 25, height: 20}); // Hardest narrow
+  gameState.platforms.push({x: 3000, y: 180, width: 40, height: 20});
+  gameState.platforms.push({x: 3300, y: 230, width: 25, height: 20}); // Hardest narrow
+  gameState.platforms.push({x: 3600, y: 280, width: 150, height: 20}); // Rest area
+  gameState.platforms.push({x: 3900, y: 230, width: 25, height: 20}); // Hardest narrow
+  gameState.platforms.push({x: 4200, y: 180, width: 40, height: 20});
+  gameState.platforms.push({x: 4500, y: 280, width: 300, height: 20}); // Final platform
+  gameState.platforms.push({x: 4800, y: 340, width: 200, height: 20});
+
+  // 5 brains - all require expert platforming
+  gameState.brains.push({x: 450, y: 210, collected: false}); // On very narrow platform
+  gameState.brains.push({x: 950, y: 160, collected: false}); // On very narrow platform
+  gameState.brains.push({x: 1550, y: 210, collected: false}); // On very narrow platform
+  gameState.brains.push({x: 2750, y: 210, collected: false}); // On very narrow platform
+  gameState.brains.push({x: 4650, y: 250, collected: false}); // Final brain
+  
+  // Ultimate enemy challenge
+  gameState.enemies.push({
+    x: 300, y: 150, width: 30, height: 30, 
+    velX: 2.8, minX: 200, maxX: 700,
+    type: 'ground',
+    alive: true
+  });
+  gameState.enemies.push({
+    x: 1100, y: 150, width: 30, height: 30, 
+    velX: -2.8, minX: 900, maxX: 1500,
+    type: 'ground',
+    alive: true
+  });
+  gameState.enemies.push({
+    x: 1700, y: 150, width: 30, height: 30,
+    velY: 2.8, minY: 100, maxY: 250,
+    type: 'vertical',
+    alive: true
+  });
+  gameState.enemies.push({
+    x: 2300, y: 150, width: 30, height: 30, 
+    velX: 0, attackTimer: 15, attackRange: 450, // Lightning fast attacks
+    type: 'ranged',
+    alive: true
+  });
+  gameState.enemies.push({
+    x: 2900, y: 150, width: 30, height: 30, 
+    velX: 2.5, minX: 2700, maxX: 3500,
+    type: 'ground',
+    alive: true
+  });
+  gameState.enemies.push({
+    x: 3500, y: 150, width: 30, height: 30,
+    velY: 2.5, minY: 100, maxY: 250,
+    type: 'vertical',
+    alive: true
+  });
+  gameState.enemies.push({
+    x: 4100, y: 150, width: 30, height: 30, 
+    velX: 0, attackTimer: 15, attackRange: 450,
+    type: 'ranged',
+    alive: true
+  });
       }
+      
       
       // Add end flag at the end of the level
       gameState.endFlag = {x: gameState.levelWidth - 100, y: 270, width: 30, height: 80};
@@ -1228,8 +1607,8 @@ function showScreen(screen) {
       // Clear canvas
       ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
       
-      // Draw background
-      drawBackground(cameraX);
+        // Draw background - pass current level (assuming you track this in gameState)
+  drawBackground(cameraX, gameState.currentLevel);
       
       // Draw platforms
       ctx.fillStyle = '#8B4513';
@@ -1461,61 +1840,102 @@ for (const p of gameState.enemyProjectiles) {
       ctx.fillText(`Lives: ${gameState.player.lives}`, gameCanvas.width/2 - 50, 35);
     }
 
-    // Draw background
-    function drawBackground(cameraX) {
-      // Sky gradient
-      const skyGradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
-      skyGradient.addColorStop(0, '#87CEEB');
-      skyGradient.addColorStop(1, '#E0F7FA');
-      ctx.fillStyle = skyGradient;
-      ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    function drawBackground(cameraX, level) {
+  switch(level) {
+    // Level 1: Underwater (introduction)
+    case 1:
+      drawUnderwaterBackground(cameraX, true); // Brighter version
+      break;
+      // Level 2: Forest (gentle rain)
+    case 2:
+      drawForestBackground(cameraX);
+      break;
       
-      // Clouds
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      drawCloud(100 - cameraX/3, 50);
-      drawCloud(300 - cameraX/3, 80);
-      drawCloud(500 - cameraX/3, 60);
-      drawCloud(700 - cameraX/3, 70);
-      drawCloud(900 - cameraX/3, 65);
-      drawCloud(1100 - cameraX/3, 55);
+    // Level 3: Alien Planet (surreal)
+    case 3:
+      drawAlienBackground(cameraX);
+      break;
       
-      // Sun rays
-      const sunX = 700;
-      const sunY = 80;
-      const rayLength = 60;
-      const rayCount = 12;
+    // Level 4: Volcanic Cavern (lava)
+    case 4:
+      drawVolcanoBackground(cameraX);
+      break;
       
-      ctx.strokeStyle = 'rgba(255, 235, 59, 0.6)';
-      ctx.lineWidth = 2;
-      for (let i = 0; i < rayCount; i++) {
-        const angle = (Math.PI * 2 / rayCount) * i;
-        const startX = sunX + Math.cos(angle) * 45;
-        const startY = sunY + Math.sin(angle) * 45;
-        const endX = sunX + Math.cos(angle) * (45 + rayLength);
-        const endY = sunY + Math.sin(angle) * (45 + rayLength);
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-      }
+    // Level 5: Night City (contrast)
+    case 5:
+      drawCityBackground(cameraX);
+      break;
       
-      // Sun body
-      ctx.fillStyle = '#FFEB3B';
+    // Level 6: Sunny Default (calm before finale)
+    case 6:
+      drawBackground(cameraX);
+      break;
+      
+    // Level 7: Deep Underwater (finale, darker)
+    case 7:
+      drawUnderwaterBackground(cameraX, false); // Darker version
+      break;
+      
+    default: // Fallback
+      drawUnderwaterBackground(cameraX); // Default underwater
+ 
+    
+    // Original background code (renamed from your existing drawBackground)
+    // Sky gradient
+   
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+    skyGradient.addColorStop(0, '#87CEEB');
+    skyGradient.addColorStop(1, '#E0F7FA');
+    ctx.fillStyle = skyGradient;
+    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    
+    // Clouds
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    drawCloud(100 - cameraX/3, 50);
+    drawCloud(300 - cameraX/3, 80);
+    drawCloud(500 - cameraX/3, 60);
+    drawCloud(700 - cameraX/3, 70);
+    drawCloud(900 - cameraX/3, 65);
+    drawCloud(1100 - cameraX/3, 55);
+    
+    // Sun rays
+    const sunX = 700;
+    const sunY = 80;
+    const rayLength = 60;
+    const rayCount = 12;
+    
+    ctx.strokeStyle = 'rgba(255, 235, 59, 0.6)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < rayCount; i++) {
+      const angle = (Math.PI * 2 / rayCount) * i;
+      const startX = sunX + Math.cos(angle) * 45;
+      const startY = sunY + Math.sin(angle) * 45;
+      const endX = sunX + Math.cos(angle) * (45 + rayLength);
+      const endY = sunY + Math.sin(angle) * (45 + rayLength);
       ctx.beginPath();
-      ctx.arc(sunX, sunY, 40, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Distant hills
-      ctx.fillStyle = 'rgba(144, 238, 144, 0.6)';
-      ctx.beginPath();
-      ctx.moveTo(0 - cameraX/4, 350);
-      for (let i = 0; i < 10; i++) {
-        ctx.lineTo(i * 200 - cameraX/4, 300 - Math.sin(i) * 30);
-      }
-      ctx.lineTo(2000, 350);
-      ctx.lineTo(0, 350);
-      ctx.fill();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
     }
+    
+    // Sun body
+    ctx.fillStyle = '#FFEB3B';
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 40, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Distant hills
+    ctx.fillStyle = 'rgba(144, 238, 144, 0.6)';
+    ctx.beginPath();
+    ctx.moveTo(0 - cameraX/4, 350);
+    for (let i = 0; i < 10; i++) {
+      ctx.lineTo(i * 200 - cameraX/4, 300 - Math.sin(i) * 30);
+    }
+    ctx.lineTo(2000, 350);
+    ctx.lineTo(0, 350);
+    ctx.fill();
+  }
+}
 
     // Draw a cloud
     function drawCloud(x, y) {
@@ -1527,33 +1947,361 @@ for (const p of gameState.enemyProjectiles) {
       ctx.fill();
     }
 
+// Underwater background
+function drawUnderwaterBackground(cameraX) {
+  // Water gradient (darker at depth, lighter near surface)
+  const waterGradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+  waterGradient.addColorStop(0, '#1a6a8a');  // Surface
+  waterGradient.addColorStop(1, '#0a2e38');  // Depth
+  ctx.fillStyle = waterGradient;
+  ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+  
+  // Light rays from surface
+  ctx.strokeStyle = 'rgba(173, 216, 230, 0.3)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 5; i++) {
+    const x = 150 + i * 300 - cameraX * 0.2;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + 50, gameCanvas.height);
+    ctx.stroke();
+  }
+  
+  // Bubbles (rising effect with camera)
+  ctx.fillStyle = 'rgba(173, 216, 230, 0.6)';
+  for (let i = 0; i < 15; i++) {
+    const bubbleX = (i * 120 + (cameraX * 0.4)) % 1400;
+    const bubbleY = (gameCanvas.height - (Date.now() * 0.05 + i * 40) % (gameCanvas.height + 50));
+    const size = 3 + Math.sin(Date.now() * 0.001 + i) * 2;
+    ctx.beginPath();
+    ctx.arc(bubbleX, bubbleY, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  // Seaweed (foreground plants)
+  ctx.fillStyle = '#2a7a3a';
+  for (let i = 0; i < 8; i++) {
+    drawSeaweed(200 + i * 180 - cameraX * 0.8, gameCanvas.height - 30);
+  }
+  
+  // Coral reef (distant)
+  ctx.fillStyle = 'rgba(205, 92, 92, 0.7)';
+  ctx.beginPath();
+  ctx.moveTo(0 - cameraX/5, gameCanvas.height - 50);
+  for (let i = 0; i < 15; i++) {
+    const x = i * 150 - cameraX/5;
+    const height = 30 + Math.sin(i * 0.5) * 20;
+    ctx.lineTo(x, gameCanvas.height - 50 - height);
+  }
+  ctx.lineTo(2000, gameCanvas.height - 50);
+  ctx.fill();
+}
+
+// Draw seaweed plant
+function drawSeaweed(x, y) {
+  ctx.beginPath();
+  // Main stem
+  ctx.moveTo(x, y);
+  ctx.bezierCurveTo(x + 10, y - 60, x - 10, y - 120, x, y - 180);
+  
+  // Leaves
+  for (let i = 0; i < 5; i++) {
+    const leafY = y - 30 - i * 30;
+    ctx.moveTo(x, leafY);
+    ctx.quadraticCurveTo(x + 15 + i * 3, leafY - 15, x, leafY - 30);
+    ctx.moveTo(x, leafY);
+    ctx.quadraticCurveTo(x - 15 - i * 3, leafY - 15, x, leafY - 30);
+  }
+  ctx.strokeStyle = '#2a7a3a';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function drawCityBackground(cameraX) {
+  // Night sky gradient
+  const skyGradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+  skyGradient.addColorStop(0, '#0a0a2a');
+  skyGradient.addColorStop(1, '#1a1a40');
+  ctx.fillStyle = skyGradient;
+  ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+  // Stars
+  ctx.fillStyle = 'white';
+  for (let i = 0; i < 100; i++) {
+    const x = (i * 50 + cameraX * 0.1) % (gameCanvas.width + 200);
+    const y = (i * 30) % gameCanvas.height;
+    const size = Math.random() * 1.5;
+    ctx.fillRect(x, y, size, size);
+  }
+
+  // Distant buildings (parallax)
+  ctx.fillStyle = '#222244';
+  for (let i = 0; i < 15; i++) {
+    const width = 80 + Math.sin(i) * 20;
+    const height = 100 + Math.cos(i * 0.7) * 50;
+    ctx.fillRect(
+      i * 150 - cameraX * 0.3, 
+      gameCanvas.height - height,
+      width, 
+      height
+    );
+  }
+
+  // Closer buildings
+  ctx.fillStyle = '#333366';
+  for (let i = 0; i < 10; i++) {
+    const height = 200 + Math.sin(i) * 40;
+    ctx.fillRect(
+      i * 200 - cameraX * 0.7, 
+      gameCanvas.height - height,
+      120, 
+      height
+    );
+  }
+
+  // Windows (yellow lights)
+  ctx.fillStyle = 'rgba(255, 215, 0, 0.4)'; // More transparent gold
+for (let i = 0; i < 20; i++) { // Fewer windows
+  const x = (i * 150 + cameraX * 0.5) % 2000;
+  const y = gameCanvas.height - 30 - (Math.floor(i / 4) * 50); // More spaced out
+  if (Math.random() > 0.5) { // 50% chance to draw a window
+    ctx.fillRect(x, y, 10, 15); // Smaller windows
+  }
+}
+}
+
+function drawVolcanoBackground(cameraX) {
+  // Cave gradient (dark red to black)
+  const caveGradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+  caveGradient.addColorStop(0, '#3a0a0a');
+  caveGradient.addColorStop(1, '#000000');
+  ctx.fillStyle = caveGradient;
+  ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+  // Lava river at bottom
+  const lavaGradient = ctx.createLinearGradient(0, gameCanvas.height - 50, 0, gameCanvas.height);
+  lavaGradient.addColorStop(0, '#ff4500');
+  lavaGradient.addColorStop(1, '#ff8c00');
+  ctx.fillStyle = lavaGradient;
+  ctx.fillRect(0, gameCanvas.height - 30, gameCanvas.width, 30);
+
+  // Lava bubbles
+  ctx.fillStyle = '#ff6600';
+  for (let i = 0; i < 8; i++) {
+    const x = (i * 200 + cameraX * 0.4) % (gameCanvas.width + 300);
+    const y = gameCanvas.height - 35 + Math.sin(Date.now() * 0.002 + i) * 3;
+    ctx.beginPath();
+    ctx.arc(x, y, 10 + Math.sin(Date.now() * 0.001 + i) * 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Stalactites
+  ctx.fillStyle = '#555555';
+  for (let i = 0; i < 20; i++) {
+    const x = i * 150 - cameraX * 0.6;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + 15, 0);
+    ctx.lineTo(x + 7, 40 + Math.sin(i) * 20);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawAlienBackground(cameraX) {
+  // Sky gradient (purple to pink)
+  const skyGradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+  skyGradient.addColorStop(0, '#4b0082');
+  skyGradient.addColorStop(1, '#ff1493');
+  ctx.fillStyle = skyGradient;
+  ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+  // Floating alien orbs
+  ctx.fillStyle = 'rgba(0, 255, 255, 0.4)';
+  for (let i = 0; i < 6; i++) {
+    const x = (i * 250 + cameraX * 0.2) % (gameCanvas.width + 400);
+    const y = 100 + Math.sin(Date.now() * 0.001 + i) * 30;
+    ctx.beginPath();
+    ctx.arc(x, y, 30, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Strange plants
+  ctx.fillStyle = '#7cfc00';
+  for (let i = 0; i < 10; i++) {
+    const x = i * 200 - cameraX * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x, gameCanvas.height);
+    ctx.bezierCurveTo(
+      x + 50, gameCanvas.height - 120,
+      x - 50, gameCanvas.height - 180,
+      x, gameCanvas.height - 220
+    );
+    ctx.lineWidth = 8;
+    ctx.stroke();
+  }
+
+  // Twin moons
+  ctx.fillStyle = 'rgba(255, 255, 0, 0.7)';
+  ctx.beginPath();
+  ctx.arc(150 - cameraX * 0.05, 80, 30, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255, 100, 255, 0.5)';
+  ctx.beginPath();
+  ctx.arc(300 - cameraX * 0.03, 60, 40, 0, Math.PI * 2);
+  ctx.fill();
+}
+function drawForestBackground(cameraX) {
+  // Sky gradient (darker for contrast)
+  const skyGradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+  skyGradient.addColorStop(0, '#001f27');
+  skyGradient.addColorStop(1, '#0d0020');
+  ctx.fillStyle = skyGradient;
+  ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+  // === GENTLE VERTICAL RAIN === //
+  ctx.strokeStyle = 'rgba(180, 235, 255, 0.4)';
+  ctx.lineWidth = 1.2;
+  const rainDrops = 80; // Reduced quantity for subtlety
+  
+  for (let i = 0; i < rainDrops; i++) {
+    const rainX = (i * 25 + cameraX * 0.1) % (gameCanvas.width + 50);
+    const rainProgress = (Date.now() * 0.2 + i * 50) % (gameCanvas.height + 100);
+    const rainY = rainProgress - 100; // Start above canvas
+    
+    // Only draw if visible
+    if (rainY > -10 && rainY < gameCanvas.height) {
+      const opacity = Math.min(1, rainProgress / 100) * 0.4; // Fade in at top
+      const length = 12 + Math.sin(i) * 4; // Subtle variation
+      
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      ctx.beginPath();
+      ctx.moveTo(rainX, rainY);
+      ctx.lineTo(rainX, rainY + length);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // === VARIED TREES === //
+  const treeTypes = [
+    // Type 1: Willow-style
+    { color: '#00a896', draw: (x) => {
+      ctx.fillStyle = '#5e503f';
+      ctx.fillRect(x, gameCanvas.height - 100, 25, 100);
+      ctx.fillStyle = '#00a896';
+      for (let j = 0; j < 8; j++) {
+        ctx.beginPath();
+        ctx.moveTo(x + 12, gameCanvas.height - 100 + j * 5);
+        ctx.quadraticCurveTo(
+          x + 30 - j * 4, gameCanvas.height - 130 - j * 15,
+          x + 50 - j * 8, gameCanvas.height - 80 - j * 5
+        );
+        ctx.lineTo(x - 26 + j * 8, gameCanvas.height - 80 - j * 5);
+        ctx.quadraticCurveTo(
+          x - 6 + j * 4, gameCanvas.height - 130 - j * 15,
+          x + 12, gameCanvas.height - 100 + j * 5
+        );
+        ctx.fill();
+      }
+    }},
+    
+    // Type 2: Pine-style
+    { color: '#02c39a', draw: (x) => {
+      ctx.fillStyle = '#4a4e41';
+      ctx.fillRect(x, gameCanvas.height - 120, 20, 120);
+      for (let j = 0; j < 3; j++) {
+        ctx.fillStyle = `rgba(2, 195, 154, ${0.7 - j * 0.2})`;
+        ctx.beginPath();
+        ctx.moveTo(x + 10, gameCanvas.height - 180 + j * 40);
+        ctx.lineTo(x + 40 - j * 10, gameCanvas.height - 120 + j * 20);
+        ctx.lineTo(x - 20 + j * 10, gameCanvas.height - 120 + j * 20);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }},
+    
+    // Type 3: Glowing mushroom trees
+    { color: '#ff6b6b', draw: (x) => {
+      ctx.fillStyle = '#69385c';
+      ctx.fillRect(x, gameCanvas.height - 80, 15, 80);
+      ctx.fillStyle = '#ff6b6b';
+      ctx.beginPath();
+      ctx.arc(x + 7, gameCanvas.height - 100, 30, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      for (let j = 0; j < 5; j++) {
+        ctx.beginPath();
+        ctx.arc(
+          x + 7 + Math.cos(j * 1.2) * 20,
+          gameCanvas.height - 100 + Math.sin(j * 1.2) * 20,
+          3 + Math.sin(Date.now() * 0.005 + j) * 2,
+          0, Math.PI * 2
+        );
+        ctx.fill();
+      }
+    }}
+  ];
+
+  // Draw 8 trees with parallax
+  for (let i = 0; i < 8; i++) {
+    const treeType = treeTypes[i % treeTypes.length];
+    const x = i * 300 - cameraX * 0.6;
+    if (x > -200 && x < gameCanvas.width + 200) {
+      treeType.draw(x);
+    }
+  }
+
+  // === FOREGROUND FOLIAGE === //
+  ctx.fillStyle = 'rgba(0, 168, 150, 0.3)';
+  for (let i = 0; i < 40; i++) {
+    const x = (i * 100 - cameraX * 0.9) % (gameCanvas.width + 400);
+    const height = 30 + Math.sin(i) * 15;
+    ctx.beginPath();
+    ctx.moveTo(x, gameCanvas.height);
+    ctx.lineTo(x + 20, gameCanvas.height - height);
+    ctx.lineTo(x - 10, gameCanvas.height - height * 0.7);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
     // End level and show quiz
     function endLevel() {
       gameState.gameActive = false;
       showScreen(quizScreen);
-      
+
+
+      // Reset quiz questions for this session
+      gameState.quizQuestions = [];
+
       // Get the appropriate question bank
       let bank;
-      if (gameState.currentLevel === 1) bank = questionBanks.easy;
-      else if (gameState.currentLevel === 2) bank = questionBanks.medium;
-      else bank = questionBanks.hard;
-      
-      // Get random questions
-      gameState.quizQuestions = [];
-      const numQuestions = Math.min(gameState.collectedBrains.length, bank.length);
-      
-      // Create a copy of the bank to avoid duplicates
-      const availableQuestions = [...bank];
-      
+      if (gameState.currentLevel <= 2) bank = questionBanks.easy;       // Levels 1-2: Easy
+      else if (gameState.currentLevel <= 4) bank = questionBanks.medium; // Levels 3-4: Medium 
+      else bank = questionBanks.hard; 
+
+      // Get random questions - now uses 5 questions max per level
+      const maxQuestions = 5; // Since each level has 5 brains
+      const numQuestions = Math.min(gameState.collectedBrains.length, maxQuestions);
+
+
+      // Filter out questions already used in previous levels
+      const availableQuestions = bank.filter(q => !gameState.usedQuestions.includes(q));
+
       for (let i = 0; i < numQuestions; i++) {
+        if (availableQuestions.length === 0) break;
         const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-        gameState.quizQuestions.push(availableQuestions[randomIndex]);
+        const selected = availableQuestions[randomIndex];
+        gameState.quizQuestions.push(selected);
+        gameState.usedQuestions.push(selected);
         availableQuestions.splice(randomIndex, 1);
       }
-      
+
       gameState.score.total = gameState.quizQuestions.length;
       gameState.currentQuestion = 0;
-      
+
       collectedCount.textContent = gameState.collectedBrains.length;
       showQuestion();
     }
@@ -1617,12 +2365,12 @@ for (const p of gameState.enemyProjectiles) {
 
       scoreSummary.textContent = `You scored ${correct}/${total} (${percentage}%) on the ${gameState.levels[gameState.currentLevel - 1].name} quiz!`;
 
-      if (gameState.currentLevel === 3) {
+      if (gameState.currentLevel === 7) {
         // Immediately hide score screen and show final screen
         setTimeout(() => {
           showScreen(finalScreen);
           finalText.textContent =
-            `🎓 You've completed all 3 levels!\n` +
+            `🎓 You've completed all 7 levels!\n` +
             `Final Score: ${correct}/${total} (${percentage}%)\n\n` +
             `Thanks for playing Tadpole Trials!\nGood luck with your Biology studies! 🧠📘`;
         }, 1500);
@@ -1641,7 +2389,7 @@ for (const p of gameState.enemyProjectiles) {
 
     // Go to next level
     function nextLevel() {
-      if (gameState.currentLevel < 3) {
+      if (gameState.currentLevel < 7) {
         setupLevel(gameState.currentLevel + 1);
         showScreen(gameCanvas);
         gameState.gameActive = true;
